@@ -17,4 +17,4 @@ jobs:
           base_uri: https://app-rpuga-test-wi.dev.cxast.net/
           cx_client_id: ${{ secrets.CX_CLIENT_ID }}
           cx_client_secret: ${{ secrets.CX_CLIENT_SECRET }}
-          additional_params: --tags SCA --scan-types 'sca,iac-security'
+          additional_params: --tags SCA,lang:csharp,commit-sha:${{ env.SHORT_SHA }} --threshold "sast-high=1;sast-medium=1;sast-low=1;sca-high=1;sca-medium=1;sca-low=1;iac-security-high=1;iac-security-medium=1;iac-security-low=1;"
