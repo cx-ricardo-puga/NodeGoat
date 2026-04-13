@@ -17,6 +17,7 @@
     "marked": "0.3.5",
     "mongodb": "^2.1.18",
     "needle": "2.2.4",
+    "node-esapi": "0.0.1",
     
     "underscore": "^1.8.3"
   },
