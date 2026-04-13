@@ -1,20 +1,37 @@
-name: AST CxONE Scan
+name: Checkmarx One scan
+
 on:
-  push:
+  workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize]
     branches:
       - main
+      - master
+  workflow_call:
+    secrets:
+      AST_RND_SCANS_CLIENT_ID:
+        required: true
+      AST_RND_SCANS_CLIENT_SECRET:
+        required: true
+
 jobs:
   build:
+    name: Scan
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      security-events: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
-      - name: Checkmarx One CLI Action
-        uses: checkmarx/ast-github-action@main
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+      - name: Add SHORT_SHA to env
+        run: echo "SHORT_SHA=`echo ${GITHUB_SHA::7}`" >> $GITHUB_ENV
+      - name: Checkmarx One scan action
+        uses: checkmarx/ast-github-action@d6aa63176f4631a2b4ea22c6ce66476245427571
         with:
-          project_name: cx-ricardo-puga/NodeGoat
           cx_tenant: sca-jasper-dev-mt
           base_uri: https://app-rpuga-test-wi.dev.cxast.net/
-          cx_client_id: ${{ secrets.CX_CLIENT_ID }}
-          cx_client_secret: ${{ secrets.CX_CLIENT_SECRET }}
-          SCAN_PARAMS: --tags SCA,lang:csharp,commit-sha:${{ env.SHORT_SHA }} --threshold "sast-high=1;sast-medium=1;sast-low=1;sca-high=1;sca-medium=1;sca-low=1;iac-security-high=1;iac-security-medium=1;iac-security-low=1;"
+          cx_client_id: ${{ secrets.AST_RND_SCANS_CLIENT_ID }}
+          cx_client_secret: ${{ secrets.AST_RND_SCANS_CLIENT_SECRET }}
+          additional_params: --scan-types ${{ vars.CX_SCAN_TYPES }} --tags commit-sha:${{ env.SHORT_SHA }} --threshold "${{ vars.CX_SCAN_THRESHOLD }}"          
